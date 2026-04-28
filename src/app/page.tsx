@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { HeroScrollSequence } from "@/components/hero-scroll-sequence";
+import { AboutScrollSequence } from "@/components/about-scroll-sequence";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -150,6 +151,35 @@ export default function Home() {
       tl.to("[data-hero-text-1], [data-hero-text-2]", { opacity: 1, y: 0, duration: 0.12, stagger: 0.06 }, 0)
         .to("[data-hero-text-3]",                     { opacity: 1, y: 0, duration: 0.18 },               0.35)
         .to("[data-hero-text-4], [data-hero-text-5]", { opacity: 1, y: 0, duration: 0.18, stagger: 0.1 }, 0.65);
+    });
+
+    return () => ctx.revert();
+  }, []);
+
+  // ── About section scroll pin + text animation (GSAP) ─────────────────────────
+  useEffect(() => {
+    const aboutContainer = document.getElementById("about");
+    const aboutPinned = document.getElementById("about-pinned-content");
+    if (!aboutContainer || !aboutPinned) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: aboutContainer,
+          pin: aboutPinned,
+          pinSpacing: false,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.1,
+        },
+      });
+
+      tl.to("[data-about-text-1]", { opacity: 1, y: 0, duration: 0.12 }, 0)
+        .to("[data-about-text-2]", { opacity: 1, y: 0, duration: 0.18 }, 0.2)
+        .to("[data-about-text-3]", { opacity: 1, y: 0, duration: 0.18 }, 0.38)
+        .to("[data-about-text-4]", { opacity: 1, y: 0, duration: 0.18 }, 0.56)
+        .to("[data-about-text-5]", { opacity: 1, y: 0, duration: 0.18 }, 0.74)
+        .to("[data-about-text-6]", { opacity: 1, y: 0, duration: 0.14 }, 0.9);
     });
 
     return () => ctx.revert();
@@ -401,52 +431,86 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="about" className="border-b border-[var(--color-line)]">
-          <div className="mx-auto grid w-full max-w-[1460px] gap-10 px-4 py-14 sm:px-6 sm:py-16 md:gap-12 md:px-8 lg:grid-cols-[0.86fr_1.14fr] lg:px-12">
-            <div data-reveal className="flex flex-col justify-center">
-              <p className="text-xs uppercase tracking-[0.28em] text-[var(--color-accent)]">Who am I?</p>
-              <h2 className="mt-5 font-[family:var(--font-display)] text-[clamp(2.5rem,5vw,4.9rem)] leading-[0.95] text-white">
-                Cybersecurity specialist and systems builder.
-              </h2>
-              <p className="mt-6 max-w-xl text-sm leading-7 text-white/68 sm:text-base sm:leading-8">
-                I build secure platforms, automate operations, and develop full-stack systems that solve
-                real infrastructure problems without adding noise or fragility.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                {badges.map((badge) => (
-                  <span
-                    key={badge}
-                    className="inline-flex min-h-10 items-center border border-white/12 bg-white/[0.03] px-4 text-[11px] uppercase tracking-[0.2em] text-white/78"
-                  >
-                    {badge}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-8 grid max-w-xl gap-4 text-sm text-white/68 sm:grid-cols-2">
-                <div className="border border-[var(--color-line)] bg-black/22 px-4 py-4">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Focus</p>
-                  <p className="mt-2 leading-7">Security architecture, automation, full-stack systems.</p>
+        {/* ── About section: full-screen pinned scroll sequence (frames2) ─────── */}
+        <section id="about" className="relative h-[350vh] border-b border-[var(--color-line)] bg-black">
+          <div id="about-pinned-content" className="relative h-screen w-full overflow-hidden">
+            {/* Full-screen canvas playing frames2 */}
+            <AboutScrollSequence triggerSelector="#about" />
+
+            {/* Section label badge — top-left */}
+            <div className="pointer-events-none absolute left-0 right-0 top-0 z-50 mx-auto flex w-full max-w-[1460px] items-start px-4 pt-6 sm:px-6 md:px-8 lg:px-12">
+              <span className="inline-flex items-center gap-2 border border-[rgba(255,58,50,0.45)] bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.28em] text-[var(--color-accent)] backdrop-blur">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_8px_rgba(255,58,50,0.8)]" />
+                02 — Identity
+              </span>
+            </div>
+
+            {/* Overlay text content — reveals as user scrolls */}
+            <div className="pointer-events-none absolute inset-0 z-40 flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12">
+              <div className="mx-auto w-full max-w-[1460px]">
+                <p
+                  data-about-text-1
+                  className="translate-y-10 opacity-0 text-[10px] uppercase tracking-[0.28em] text-[var(--color-accent)] sm:text-xs sm:tracking-[0.32em]"
+                >
+                  Who am I?
+                </p>
+
+                <h2
+                  className="mt-5 max-w-[18ch] font-[family:var(--font-display)] text-[clamp(2.4rem,7.5vw,5.2rem)] leading-[0.93] tracking-[0.02em] text-white sm:mt-6"
+                >
+                  <div data-about-text-2 className="translate-y-10 opacity-0">Cybersecurity specialist</div>
+                  <div data-about-text-3 className="translate-y-10 opacity-0">
+                    <span className="text-[var(--color-accent)]">and systems</span> builder.
+                  </div>
+                </h2>
+
+                <p
+                  data-about-text-4
+                  className="mt-6 max-w-lg translate-y-10 opacity-0 text-sm leading-7 text-white/72 sm:mt-7 sm:text-base sm:leading-8"
+                >
+                  I build secure platforms, automate operations, and develop full-stack
+                  systems that solve real infrastructure problems without adding noise or fragility.
+                </p>
+
+                {/* Badges */}
+                <div
+                  data-about-text-5
+                  className="mt-7 flex translate-y-10 flex-wrap gap-3 opacity-0"
+                >
+                  {badges.map((badge) => (
+                    <span
+                      key={badge}
+                      className="inline-flex min-h-10 items-center border border-white/14 bg-black/40 px-4 text-[11px] uppercase tracking-[0.2em] text-white/80 backdrop-blur"
+                    >
+                      {badge}
+                    </span>
+                  ))}
                 </div>
-                <div className="border border-[var(--color-line)] bg-black/22 px-4 py-4">
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Approach</p>
-                  <p className="mt-2 leading-7">Defensive by default, practical in execution, clear in delivery.</p>
+
+                {/* Info cards */}
+                <div
+                  data-about-text-6
+                  className="mt-7 grid max-w-lg translate-y-10 gap-4 opacity-0 sm:grid-cols-2"
+                >
+                  <div className="border border-[var(--color-line)] bg-black/50 px-4 py-4 backdrop-blur">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Focus</p>
+                    <p className="mt-2 text-sm leading-7 text-white/70">Security architecture, automation, full-stack systems.</p>
+                  </div>
+                  <div className="border border-[var(--color-line)] bg-black/50 px-4 py-4 backdrop-blur">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Approach</p>
+                    <p className="mt-2 text-sm leading-7 text-white/70">Defensive by default, practical in execution, clear in delivery.</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div data-reveal className="relative min-h-[360px] overflow-hidden border border-[var(--color-line)] bg-[rgba(5,10,16,0.72)] sm:min-h-[440px] lg:min-h-[460px]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,58,50,0.16),transparent_40%)]" />
-              <div className="absolute left-1/2 top-[46%] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-[rgba(255,58,50,0.5)] bg-[linear-gradient(135deg,rgba(255,58,50,0.18),rgba(11,20,32,0.5))] shadow-[0_0_50px_rgba(255,58,50,0.18)] sm:h-40 sm:w-40 lg:h-48 lg:w-48" />
-              <div className="absolute left-1/2 top-[46%] h-16 w-16 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[linear-gradient(135deg,#ff6858,#8f0909)] shadow-[0_0_35px_rgba(255,58,50,0.52)] sm:h-20 sm:w-20 lg:h-24 lg:w-24" />
-              <div className="absolute left-1/2 top-[46%] h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(255,255,255,0.07)] sm:h-[300px] sm:w-[300px] lg:h-[360px] lg:w-[360px]" />
-              <div className="absolute left-1/2 top-[46%] h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(255,58,50,0.12)] sm:h-[360px] sm:w-[360px] lg:h-[430px] lg:w-[430px]" />
-              <div className="absolute right-4 top-4 w-36 border border-[var(--color-line)] bg-black/24 p-3 text-xs text-white/70 sm:right-6 sm:top-6 sm:w-40 sm:p-4 sm:text-sm lg:right-8 lg:top-10 lg:w-44">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Location</p>
-                <p className="mt-2">India</p>
-              </div>
-              <div className="absolute bottom-4 left-4 right-4 w-auto max-w-[15rem] border border-[var(--color-line)] bg-black/24 p-3 text-xs text-white/70 sm:bottom-6 sm:left-6 sm:right-auto sm:max-w-[12.5rem] sm:p-4 sm:text-sm lg:bottom-10 lg:left-8 lg:max-w-[13rem]">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Focus Areas</p>
-                <p className="mt-2 leading-7">Cybersecurity, automation, application engineering.</p>
+            {/* Scroll indicator — bottom */}
+            <div className="pointer-events-none absolute bottom-7 left-0 right-0 z-40 mx-auto flex w-full max-w-[1460px] items-end justify-start px-4 sm:px-6 md:px-8 lg:px-12">
+              <div className="hidden items-center gap-3 text-[10px] uppercase tracking-[0.26em] text-white/40 lg:flex">
+                <span>Scroll</span>
+                <div className="relative h-14 w-px bg-white/12">
+                  <div className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 animate-bounce rounded-full bg-[var(--color-accent)] shadow-[0_0_14px_rgba(255,58,50,0.7)]" />
+                </div>
               </div>
             </div>
           </div>
