@@ -1,64 +1,691 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { HeroScrollSequence } from "@/components/hero-scroll-sequence";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const railLinks = [
+  { id: "hero", number: "01", label: "Entry" },
+  { id: "about", number: "02", label: "Identity" },
+  { id: "team", number: "03", label: "Team" },
+  { id: "services", number: "04", label: "Services" },
+  { id: "certifications", number: "05", label: "Certs" },
+  { id: "contact", number: "06", label: "Contact" },
+];
+
+const badges = ["Problem Solver", "Systems Thinker", "Security Focused"];
+
+const team = [
+  {
+    name: "Arun Kumar",
+    role: "Founder / Security Engineer",
+    expertise: "Threat detection, secure systems design, full-stack delivery.",
+    initials: "AK",
+  },
+  {
+    name: "Nisha Rao",
+    role: "Automation Specialist",
+    expertise: "Python pipelines, internal tooling, process hardening.",
+    initials: "NR",
+  },
+  {
+    name: "Rahul Sen",
+    role: "Cloud Infrastructure Lead",
+    expertise: "Container orchestration, CI/CD, observability, cloud resilience.",
+    initials: "RS",
+  },
+];
+
+const services = [
+  {
+    title: "Network Security",
+    desc: "Segmentation, firewall strategy, monitoring, and traffic defense for modern environments.",
+    glyph: "NS",
+  },
+  {
+    title: "Ethical Hacking",
+    desc: "Practical assessments, attack-surface reviews, and exploit-driven validation.",
+    glyph: "EH",
+  },
+  {
+    title: "Automation Solutions",
+    desc: "Scripts and systems that remove repetitive work and tighten operational control.",
+    glyph: "AS",
+  },
+  {
+    title: "Full Stack Development",
+    desc: "Secure products and dashboards built with performance, reliability, and clarity in mind.",
+    glyph: "FS",
+  },
+  {
+    title: "DevOps & Cloud",
+    desc: "Release pipelines, infrastructure workflows, and resilient deployment foundations.",
+    glyph: "DC",
+  },
+];
+
+const certifications = [
+  {
+    title: "Certified Ethical Hacker",
+    org: "EC-Council",
+    year: "2024",
+  },
+  {
+    title: "CompTIA Security+",
+    org: "CompTIA",
+    year: "2023",
+  },
+  {
+    title: "AWS Cloud Practitioner",
+    org: "Amazon Web Services",
+    year: "2024",
+  },
+  {
+    title: "Google Cybersecurity",
+    org: "Google",
+    year: "2025",
+  },
+];
+
+const navLinks = [
+  { href: "#about", label: "About" },
+  { href: "#team", label: "Team" },
+  { href: "#services", label: "Services" },
+  { href: "#certifications", label: "Certifications" },
+  { href: "#contact", label: "Contact" },
+];
+
+function GitHubIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8">
+      <path d="M9 19c-4 1.2-4-2-6-2m12 4v-3.1a2.7 2.7 0 0 0-.8-2.1c2.6-.3 5.3-1.3 5.3-5.8a4.5 4.5 0 0 0-1.2-3.1 4.2 4.2 0 0 0-.1-3.1s-1-.3-3.3 1.2a11.5 11.5 0 0 0-6 0C6.6 3.5 5.6 3.8 5.6 3.8a4.2 4.2 0 0 0-.1 3.1A4.5 4.5 0 0 0 4.3 10c0 4.5 2.7 5.5 5.3 5.8a2.7 2.7 0 0 0-.8 2.1V21" />
+    </svg>
+  );
+}
+
+function LinkedInIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-12h4v2" />
+      <rect x="2" y="9" width="4" height="12" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
 
 export default function Home() {
+  const pageRef = useRef<HTMLDivElement | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const scope = pageRef.current;
+
+    if (!scope) {
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        "[data-hero-copy]",
+        { y: 42, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.95, stagger: 0.1, ease: "power3.out" },
+      );
+
+      gsap.fromTo(
+        "[data-hero-visual]",
+        { scale: 0.92, opacity: 0, rotate: -5 },
+        { scale: 1, opacity: 1, rotate: 0, duration: 1.2, ease: "power3.out", delay: 0.12 },
+      );
+
+      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element, index) => {
+        gsap.fromTo(
+          element,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.85,
+            ease: "power3.out",
+            delay: index * 0.02,
+            scrollTrigger: {
+              trigger: element,
+              start: "top 84%",
+            },
+          },
+        );
+      });
+
+      gsap.to("[data-scroll-line]", {
+        scaleY: 1,
+        transformOrigin: "top top",
+        ease: "none",
+        scrollTrigger: {
+          trigger: scope,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true,
+        },
+      });
+
+      gsap.to("[data-scroll-dot]", {
+        y: 42,
+        repeat: -1,
+        yoyo: true,
+        duration: 1.1,
+        ease: "sine.inOut",
+      });
+    }, scope);
+
+    return () => {
+      ctx.revert();
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <div
+      ref={pageRef}
+      className="relative min-h-screen overflow-x-hidden bg-[var(--color-bg)] text-[var(--color-text)]"
+    >
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,58,50,0.16),transparent_22%),linear-gradient(180deg,#05080d_0%,#05070b_52%,#040609_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:88px_88px] opacity-20" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,57,45,0.08),transparent_35%)]" />
+      </div>
+
+      <div className="pointer-events-none fixed inset-y-0 left-0 z-30 hidden w-[114px] border-r border-[var(--color-line)] xl:block">
+        <div className="flex h-full flex-col px-9 pt-8">
+          <div className="mb-12 flex justify-center">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="/icon/Logo whiteLosenyx.svg"
+              alt="Losenyx logo"
+              width={64}
+              height={64}
+              className="h-14 w-auto object-contain opacity-95"
+              priority
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+          <div className="relative flex-1">
+            <div className="absolute left-[10px] top-4 bottom-12 w-px bg-white/10" />
+            <div
+              data-scroll-line
+              className="absolute left-[10px] top-4 bottom-12 w-px origin-top scale-y-0 bg-[var(--color-accent)]"
+            />
+            <div className="space-y-9">
+              {railLinks.map((item) => (
+                <a key={item.id} href={`#${item.id}`} className="relative block pl-5">
+                  <div className="absolute left-[6px] top-[15px] h-2 w-2 rounded-full border border-white/25 bg-[var(--color-bg)]" />
+                  <p className="font-[family:var(--font-display)] text-[2.1rem] leading-none text-[var(--color-accent)]">
+                    {item.number}
+                  </p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-white/72">{item.label}</p>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
+      </div>
+
+      <main className="relative z-10 xl:ml-[114px]">
+        <section id="hero" className="min-h-screen border-b border-[var(--color-line)]">
+          <header className="mx-auto flex w-full max-w-[1460px] flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 md:flex-nowrap md:px-8 lg:px-12">
+            <div className="min-w-0 xl:hidden">
+              <Image
+                src="/icon/Logo whiteLosenyx.svg"
+                alt="Losenyx"
+                width={148}
+                height={48}
+                className="h-10 w-auto object-contain sm:h-11"
+                priority
+              />
+            </div>
+            <button
+              type="button"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="order-2 inline-flex h-11 w-11 items-center justify-center border border-[var(--color-line)] text-white transition hover:border-[rgba(255,58,50,0.5)] md:hidden"
+            >
+              <span className="sr-only">Toggle navigation menu</span>
+              <span className="flex flex-col gap-1.5">
+                <span
+                  className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "translate-y-2 rotate-45" : ""}`}
+                />
+                <span
+                  className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "opacity-0" : ""}`}
+                />
+                <span
+                  className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "-translate-y-2 -rotate-45" : ""}`}
+                />
+              </span>
+            </button>
+            <nav className="order-3 hidden w-full gap-8 text-xs uppercase tracking-[0.24em] text-white/70 md:flex md:w-auto">
+              <a href="#hero" className="text-[var(--color-accent)]">
+                Home
+              </a>
+              {navLinks.map((item) => (
+                <a key={item.href} href={item.href} className="transition hover:text-white">
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+            <div
+              id="mobile-nav"
+              className={`order-4 w-full border-t border-[var(--color-line)] pt-4 md:hidden ${
+                mobileMenuOpen ? "block" : "hidden"
+              }`}
+            >
+              <nav className="grid gap-2 text-[11px] uppercase tracking-[0.22em] text-white/70">
+                <a
+                  href="#hero"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="border border-white/8 bg-white/[0.03] px-4 py-3 text-[var(--color-accent)]"
+                >
+                  Home
+                </a>
+                {navLinks.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="border border-white/8 bg-white/[0.03] px-4 py-3 transition hover:border-[rgba(255,58,50,0.35)] hover:text-white"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+                <a
+                  href="#contact"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="mt-2 inline-flex min-h-11 items-center justify-center border border-[var(--color-accent)] px-4 text-[10px] tracking-[0.22em] text-white transition hover:bg-[rgba(255,58,50,0.12)]"
+                >
+                  Let&apos;s Connect
+                </a>
+              </nav>
+            </div>
+            <a
+              href="#contact"
+              className="order-2 hidden min-h-11 items-center justify-center border border-[var(--color-accent)] px-4 text-[10px] uppercase tracking-[0.22em] text-white transition hover:bg-[rgba(255,58,50,0.12)] sm:px-5 sm:text-[11px] md:order-3 md:inline-flex"
+            >
+              Let&apos;s Connect
+            </a>
+          </header>
+
+          <div className="mx-auto grid w-full max-w-[1460px] gap-8 px-4 pb-10 pt-3 sm:px-6 md:gap-10 md:px-8 lg:grid-cols-[0.78fr_1.22fr] lg:px-12 lg:pb-0">
+            <div className="flex flex-col justify-center py-6 sm:py-8 lg:py-16">
+              <p
+                data-hero-copy
+                className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)] sm:text-xs sm:tracking-[0.28em]"
+              >
+                Securing the digital future
+              </p>
+              <h1
+                data-hero-copy
+                className="mt-5 max-w-[13ch] font-[family:var(--font-display)] text-[clamp(2.35rem,10vw,6.4rem)] leading-[0.92] tracking-[0.02em] text-white sm:mt-6"
+              >
+                Securing Systems. Tracking <span className="text-[var(--color-accent)]">Threats.</span>{" "}
+                Building Resilient Infrastructure.
+              </h1>
+              <p data-hero-copy className="mt-5 max-w-md text-sm leading-7 text-white/70 sm:mt-6 sm:text-base sm:leading-8">
+                Cybersecurity specialist and developer focused on building secure, scalable, and
+                intelligent systems for real-world operations.
+              </p>
+
+              <div data-hero-copy className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:gap-4">
+                <a
+                  href="#services"
+                  className="inline-flex min-h-12 w-full items-center justify-center bg-[linear-gradient(135deg,#ff5f4f,#b81510)] px-6 text-[11px] uppercase tracking-[0.24em] text-white shadow-[0_0_24px_rgba(255,58,50,0.28)] transition hover:scale-[1.02] sm:w-auto"
+                >
+                  Explore Work
+                </a>
+                <a
+                  href="#contact"
+                  className="inline-flex min-h-12 w-full items-center justify-center border border-white/16 bg-white/[0.03] px-6 text-[11px] uppercase tracking-[0.24em] text-white transition hover:border-white/30 hover:bg-white/[0.06] sm:w-auto"
+                >
+                  Contact
+                </a>
+              </div>
+            </div>
+
+            <div data-hero-visual className="relative flex min-h-[320px] items-center justify-center overflow-hidden border border-[rgba(115,226,255,0.2)] bg-[rgba(4,8,14,0.82)] shadow-[0_0_50px_rgba(49,176,255,0.08)] sm:min-h-[420px] lg:min-h-[520px]">
+              <HeroScrollSequence />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_22%,rgba(1,6,12,0.36)_64%,rgba(1,3,7,0.82)_100%)]" />
+              <div className="absolute bottom-4 left-4 right-4 max-w-sm border border-cyan-300/18 bg-slate-950/44 px-4 py-4 backdrop-blur sm:bottom-7 sm:left-7 sm:right-auto sm:px-5">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-cyan-300 sm:tracking-[0.3em]">
+                  Futuristic Interface
+                </p>
+                <p className="mt-3 font-[family:var(--font-display)] text-2xl text-white sm:text-3xl">
+                  Scroll-controlled system feed
+                </p>
+                <p className="mt-2 text-sm leading-6 text-white/60">
+                  Sequenced video frames, HUD overlays, and cool-spectrum scan lines tuned for a futuristic hero.
+                </p>
+              </div>
+              <div className="absolute right-4 top-4 border border-cyan-300/18 bg-slate-950/44 px-3 py-2 text-[9px] uppercase tracking-[0.22em] text-cyan-100/82 backdrop-blur sm:right-7 sm:top-7 sm:px-4 sm:py-3 sm:text-[10px] sm:tracking-[0.24em]">
+                Sequence online
+              </div>
+            </div>
+          </div>
+
+          <div className="mx-auto flex w-full max-w-[1460px] items-end justify-between px-4 pb-7 sm:px-6 md:px-8 lg:px-12">
+            <div className="hidden items-center gap-3 text-[10px] uppercase tracking-[0.26em] text-white/42 lg:flex">
+              <span>Scroll</span>
+              <div className="relative h-14 w-px bg-white/12">
+                <div
+                  data-scroll-dot
+                  className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full bg-[var(--color-accent)] shadow-[0_0_14px_rgba(255,58,50,0.7)]"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="about" className="border-b border-[var(--color-line)]">
+          <div className="mx-auto grid w-full max-w-[1460px] gap-10 px-4 py-14 sm:px-6 sm:py-16 md:gap-12 md:px-8 lg:grid-cols-[0.86fr_1.14fr] lg:px-12">
+            <div data-reveal className="flex flex-col justify-center">
+              <p className="text-xs uppercase tracking-[0.28em] text-[var(--color-accent)]">Who am I?</p>
+              <h2 className="mt-5 font-[family:var(--font-display)] text-[clamp(2.5rem,5vw,4.9rem)] leading-[0.95] text-white">
+                Cybersecurity specialist and systems builder.
+              </h2>
+              <p className="mt-6 max-w-xl text-sm leading-7 text-white/68 sm:text-base sm:leading-8">
+                I build secure platforms, automate operations, and develop full-stack systems that solve
+                real infrastructure problems without adding noise or fragility.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                {badges.map((badge) => (
+                  <span
+                    key={badge}
+                    className="inline-flex min-h-10 items-center border border-white/12 bg-white/[0.03] px-4 text-[11px] uppercase tracking-[0.2em] text-white/78"
+                  >
+                    {badge}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-8 grid max-w-xl gap-4 text-sm text-white/68 sm:grid-cols-2">
+                <div className="border border-[var(--color-line)] bg-black/22 px-4 py-4">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Focus</p>
+                  <p className="mt-2 leading-7">Security architecture, automation, full-stack systems.</p>
+                </div>
+                <div className="border border-[var(--color-line)] bg-black/22 px-4 py-4">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Approach</p>
+                  <p className="mt-2 leading-7">Defensive by default, practical in execution, clear in delivery.</p>
+                </div>
+              </div>
+            </div>
+
+            <div data-reveal className="relative min-h-[360px] overflow-hidden border border-[var(--color-line)] bg-[rgba(5,10,16,0.72)] sm:min-h-[440px] lg:min-h-[460px]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,58,50,0.16),transparent_40%)]" />
+              <div className="absolute left-1/2 top-[46%] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-[rgba(255,58,50,0.5)] bg-[linear-gradient(135deg,rgba(255,58,50,0.18),rgba(11,20,32,0.5))] shadow-[0_0_50px_rgba(255,58,50,0.18)] sm:h-40 sm:w-40 lg:h-48 lg:w-48" />
+              <div className="absolute left-1/2 top-[46%] h-16 w-16 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[linear-gradient(135deg,#ff6858,#8f0909)] shadow-[0_0_35px_rgba(255,58,50,0.52)] sm:h-20 sm:w-20 lg:h-24 lg:w-24" />
+              <div className="absolute left-1/2 top-[46%] h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(255,255,255,0.07)] sm:h-[300px] sm:w-[300px] lg:h-[360px] lg:w-[360px]" />
+              <div className="absolute left-1/2 top-[46%] h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(255,58,50,0.12)] sm:h-[360px] sm:w-[360px] lg:h-[430px] lg:w-[430px]" />
+              <div className="absolute right-4 top-4 w-36 border border-[var(--color-line)] bg-black/24 p-3 text-xs text-white/70 sm:right-6 sm:top-6 sm:w-40 sm:p-4 sm:text-sm lg:right-8 lg:top-10 lg:w-44">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Location</p>
+                <p className="mt-2">India</p>
+              </div>
+              <div className="absolute bottom-4 left-4 right-4 w-auto max-w-[15rem] border border-[var(--color-line)] bg-black/24 p-3 text-xs text-white/70 sm:bottom-6 sm:left-6 sm:right-auto sm:max-w-[12.5rem] sm:p-4 sm:text-sm lg:bottom-10 lg:left-8 lg:max-w-[13rem]">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Focus Areas</p>
+                <p className="mt-2 leading-7">Cybersecurity, automation, application engineering.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="team" className="border-b border-[var(--color-line)]">
+          <div className="mx-auto w-full max-w-[1460px] px-4 py-14 sm:px-6 sm:py-16 md:px-8 lg:px-12">
+            <div data-reveal className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-[var(--color-accent)]">Our Team</p>
+                <h2 className="mt-4 font-[family:var(--font-display)] text-[clamp(2.3rem,4.5vw,4.5rem)] leading-[0.95] text-white">
+                  Tight team. Clear responsibilities. Strong delivery.
+                </h2>
+              </div>
+              <p className="max-w-md text-sm leading-7 text-white/58">
+                Minimal cards, consistent lighting, and restrained motion so the expertise feels direct.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {team.map((member) => (
+                <article
+                  key={member.name}
+                  data-reveal
+                  className="group border border-[var(--color-line)] bg-[linear-gradient(180deg,rgba(10,14,20,0.96),rgba(6,10,14,0.86))] p-6 transition duration-300 hover:-translate-y-1 hover:border-[rgba(255,58,50,0.44)] hover:shadow-[0_0_34px_rgba(255,58,50,0.12)]"
+                >
+                  <div className="relative flex h-56 items-end overflow-hidden border border-white/8 bg-[radial-gradient(circle_at_50%_30%,rgba(255,58,50,0.22),transparent_24%),linear-gradient(180deg,#0a1018,#090d14)] p-6">
+                    <div className="absolute left-1/2 top-7 h-24 w-24 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,#ff5346_0%,rgba(255,83,70,0.18)_35%,transparent_70%)] blur-xl" />
+                    <div className="absolute left-1/2 top-9 flex h-28 w-28 -translate-x-1/2 items-center justify-center rounded-full border border-[rgba(255,58,50,0.28)] bg-[linear-gradient(180deg,#151d27,#0c1017)] font-[family:var(--font-display)] text-3xl tracking-[0.18em] text-white shadow-[0_0_26px_rgba(255,58,50,0.18)]">
+                      {member.initials}
+                    </div>
+                    <div className="relative z-10 mt-auto text-[10px] uppercase tracking-[0.24em] text-white/52">
+                      Consistent low-key profile lighting
+                    </div>
+                  </div>
+                  <h3 className="mt-5 font-[family:var(--font-display)] text-3xl text-white">{member.name}</h3>
+                  <p className="mt-2 text-[11px] uppercase tracking-[0.24em] text-[var(--color-accent)]">
+                    {member.role}
+                  </p>
+                  <p className="mt-4 text-base leading-7 text-white/65">{member.expertise}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="services" className="border-b border-[var(--color-line)]">
+          <div className="mx-auto w-full max-w-[1460px] px-4 py-14 sm:px-6 sm:py-16 md:px-8 lg:px-12">
+            <div data-reveal className="mb-10">
+              <p className="text-xs uppercase tracking-[0.28em] text-[var(--color-accent)]">Services</p>
+              <h2 className="mt-4 font-[family:var(--font-display)] text-[clamp(2.5rem,4.8vw,4.8rem)] leading-[0.95] text-white">
+                Modular capabilities built for secure delivery.
+              </h2>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
+              {services.map((service) => (
+                <article
+                  key={service.title}
+                  data-reveal
+                  className="group border border-[var(--color-line)] bg-[linear-gradient(180deg,rgba(8,12,18,0.98),rgba(6,8,12,0.88))] p-5 transition duration-300 hover:scale-[1.02] hover:border-[rgba(255,58,50,0.42)] hover:shadow-[0_0_30px_rgba(255,58,50,0.14)]"
+                >
+                  <div className="flex h-24 items-center justify-center border border-white/8 bg-[radial-gradient(circle,rgba(255,58,50,0.18),transparent_58%)]">
+                    <div className="flex h-14 w-14 items-center justify-center border border-[rgba(255,58,50,0.36)] bg-[rgba(255,58,50,0.08)] font-[family:var(--font-display)] text-xl tracking-[0.14em] text-white">
+                      {service.glyph}
+                    </div>
+                  </div>
+                  <h3 className="mt-5 font-[family:var(--font-display)] text-2xl text-white">{service.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/62">{service.desc}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="certifications" className="border-b border-[var(--color-line)]">
+          <div className="mx-auto w-full max-w-[1460px] px-4 py-14 sm:px-6 sm:py-16 md:px-8 lg:px-12">
+            <div data-reveal className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-[var(--color-accent)]">Certifications</p>
+                <h2 className="mt-4 font-[family:var(--font-display)] text-[clamp(2.4rem,4.7vw,4.6rem)] leading-[0.95] text-white">
+                  Structured proof of capability.
+                </h2>
+              </div>
+              <p className="max-w-md text-sm leading-7 text-white/58">
+                Clean grid, restrained labels, and timeline year markers to keep it credible rather than noisy.
+              </p>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+              {certifications.map((item) => (
+                <article
+                  key={item.title}
+                  data-reveal
+                  className="border border-[var(--color-line)] bg-black/22 p-5"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-14 w-14 items-center justify-center border border-[rgba(255,58,50,0.4)] bg-[rgba(255,58,50,0.09)] font-[family:var(--font-display)] text-xl text-white">
+                      {item.org.slice(0, 2).toUpperCase()}
+                    </div>
+                    <span className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">
+                      {item.year}
+                    </span>
+                  </div>
+                  <h3 className="mt-5 font-[family:var(--font-display)] text-2xl text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm text-white/62">{item.org}</p>
+                  <div className="mt-6 h-px bg-white/10">
+                    <div className="h-px w-3/4 bg-[var(--color-accent)]" />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="border-b border-[var(--color-line)]">
+          <div className="mx-auto grid w-full max-w-[1460px] gap-8 px-4 py-14 sm:px-6 sm:py-16 md:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-12">
+            <div data-reveal className="flex flex-col justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-[var(--color-accent)]">Contact</p>
+                <h2 className="mt-4 max-w-xl font-[family:var(--font-display)] text-[clamp(2.7rem,5.2vw,5.3rem)] leading-[0.95] text-white">
+                  Let&apos;s build something secure.
+                </h2>
+                <p className="mt-5 max-w-lg text-base leading-8 text-white/66">
+                  The contact area is styled like a control console: minimal, clear, and designed to feel
+                  operational rather than decorative.
+                </p>
+              </div>
+              <div className="mt-8 grid gap-4 text-sm text-white/68 sm:grid-cols-2">
+                <div className="border border-[var(--color-line)] bg-black/22 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Email</p>
+                  <p className="mt-2 break-words">hello@losenyx.com</p>
+                </div>
+                <div className="border border-[var(--color-line)] bg-black/22 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Location</p>
+                  <p className="mt-2">India</p>
+                </div>
+                <div className="border border-[var(--color-line)] bg-black/22 p-4 sm:col-span-2">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Phone</p>
+                  <p className="mt-2">+91 12345 67890</p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              data-reveal
+              className="border border-[var(--color-line)] bg-[linear-gradient(180deg,rgba(8,12,18,0.96),rgba(5,8,12,0.9))] p-5 sm:p-7"
+            >
+              <div className="mb-6 flex items-center justify-between border-b border-[var(--color-line)] pb-4">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)]">Control Panel</p>
+                  <p className="mt-2 font-[family:var(--font-display)] text-3xl text-white">Transmit Message</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_12px_rgba(255,58,50,0.7)]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+                </div>
+              </div>
+
+              <form className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-2 block text-[10px] uppercase tracking-[0.24em] text-white/48">Name</span>
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    className="w-full border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/28 focus:border-[rgba(255,58,50,0.6)] focus:shadow-[0_0_0_1px_rgba(255,58,50,0.24),0_0_22px_rgba(255,58,50,0.1)]"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-[10px] uppercase tracking-[0.24em] text-white/48">Email</span>
+                  <input
+                    type="email"
+                    placeholder="Your Email"
+                    className="w-full border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/28 focus:border-[rgba(255,58,50,0.6)] focus:shadow-[0_0_0_1px_rgba(255,58,50,0.24),0_0_22px_rgba(255,58,50,0.1)]"
+                  />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className="mb-2 block text-[10px] uppercase tracking-[0.24em] text-white/48">Message</span>
+                  <textarea
+                    placeholder="Your Message"
+                    rows={6}
+                    className="w-full resize-none border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/28 focus:border-[rgba(255,58,50,0.6)] focus:shadow-[0_0_0_1px_rgba(255,58,50,0.24),0_0_22px_rgba(255,58,50,0.1)]"
+                  />
+                </label>
+                <div className="sm:col-span-2">
+                  <button
+                    type="submit"
+                    className="inline-flex min-h-12 w-full items-center justify-center bg-[linear-gradient(135deg,#ff5b4c,#b81712)] px-6 text-[11px] uppercase tracking-[0.24em] text-white shadow-[0_0_24px_rgba(255,58,50,0.24)] transition hover:scale-[1.01] sm:w-auto"
+                  >
+                    Send Message
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <footer className="mx-auto w-full max-w-[1460px] px-4 py-8 sm:px-6 md:px-8 lg:px-12">
+          <div className="flex flex-col gap-6 border-t border-[var(--color-line)] pt-6 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <Image
+                src="/icon/Logo whiteLosenyx.svg"
+                alt="Losenyx"
+                width={200}
+                height={64}
+                className="h-12 w-auto object-contain"
+              />
+              <p className="mt-3 max-w-sm text-sm leading-7 text-white/56">
+                Securing systems, tracking threats, and building resilient infrastructure.
+              </p>
+            </div>
+            <div className="flex flex-col gap-5 text-sm text-white/62">
+              <div className="flex flex-wrap gap-5 uppercase tracking-[0.18em]">
+                {navLinks.map((item) => (
+                  <a key={item.href} href={item.href} className="transition hover:text-white">
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+              <div className="flex gap-3">
+                <a
+                  href="https://github.com"
+                  className="inline-flex h-10 w-10 items-center justify-center border border-white/12 bg-white/[0.03] text-white/70 transition hover:border-[rgba(255,58,50,0.5)] hover:text-white"
+                  aria-label="GitHub"
+                >
+                  <GitHubIcon />
+                </a>
+                <a
+                  href="https://linkedin.com"
+                  className="inline-flex h-10 w-10 items-center justify-center border border-white/12 bg-white/[0.03] text-white/70 transition hover:border-[rgba(255,58,50,0.5)] hover:text-white"
+                  aria-label="LinkedIn"
+                >
+                  <LinkedInIcon />
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-col gap-2 border-t border-[var(--color-line)] pt-5 text-xs uppercase tracking-[0.18em] text-white/42 sm:flex-row sm:items-center sm:justify-between">
+            <p>Copyright 2026 Losenyx. All rights reserved.</p>
+            <p>Built with security and precision.</p>
+          </div>
+        </footer>
       </main>
     </div>
   );
