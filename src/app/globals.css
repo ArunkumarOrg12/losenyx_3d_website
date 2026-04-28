@@ -1,3 +1,12 @@
+/* Custom font must be declared before Tailwind processes the file */
+@font-face {
+  font-family: 'ReloadAlt';
+  src: url('/font/ReloadAlt-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import "tailwindcss";
 
 :root {
@@ -7,13 +16,20 @@
   --color-text: #eff5ff;
   --color-accent: #ff3a32;
   --color-line: rgba(158, 173, 197, 0.14);
+  /* Live CSS variable — var(--font-display) resolves in the browser */
+  --font-display: 'ReloadAlt', 'Bahnschrift', 'Impact', 'Arial Narrow', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "Aptos", "Segoe UI", "Trebuchet MS", sans-serif;
-  --font-display: "Bahnschrift", "Impact", "Arial Narrow", sans-serif;
+  --font-display: 'ReloadAlt', 'Bahnschrift', 'Impact', 'Arial Narrow', sans-serif;
+}
+
+/* Blanket rule — every heading uses ReloadAlt */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
 }
 
 * {

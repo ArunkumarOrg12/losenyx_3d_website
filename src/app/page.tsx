@@ -146,13 +146,10 @@ export default function Home() {
       // text-4: last line + paragraph
       // text-5: CTA button
 
-      // Initial state is already translated and opacity 0 in CSS.
-      // At 0 progress, text-1 and text-2 should be visible.
-      tl.to("[data-hero-text-1], [data-hero-text-2]", { opacity: 1, y: 0, duration: 0.1, stagger: 0.05 }, 0)
-        .to("[data-hero-text-1], [data-hero-text-2]", { opacity: 0, y: -16, duration: 0.3 }, 0.4)
-        .to("[data-hero-text-3]", { opacity: 1, y: 0, duration: 0.2 }, 0.4)
-        .to("[data-hero-text-3]", { opacity: 0, y: -16, duration: 0.3 }, 0.7)
-        .to("[data-hero-text-4], [data-hero-text-5]", { opacity: 1, y: 0, duration: 0.2, stagger: 0.1 }, 0.7);
+      // Texts animate IN sequentially as user scrolls — they stay visible once shown.
+      tl.to("[data-hero-text-1], [data-hero-text-2]", { opacity: 1, y: 0, duration: 0.12, stagger: 0.06 }, 0)
+        .to("[data-hero-text-3]",                     { opacity: 1, y: 0, duration: 0.18 },               0.35)
+        .to("[data-hero-text-4], [data-hero-text-5]", { opacity: 1, y: 0, duration: 0.18, stagger: 0.1 }, 0.65);
     });
 
     return () => ctx.revert();
@@ -367,11 +364,11 @@ export default function Home() {
                   <div data-hero-text-3 className="translate-y-10 opacity-0">
                     TRACKING <span className="text-[var(--color-accent)]">THREATS.</span>
                   </div>
-                  <div data-hero-text-4 className="translate-y-10 opacity-0">BUILDING RESILIENT INFRASTRUCTURE.</div>
+                  <div data-hero-text-4 className="translate-y-10 opacity-0 font-[family:var(--font-display)]">BUILDING RESILIENT INFRASTRUCTURE.</div>
                 </h1>
                 <p
                   data-hero-text-4
-                  className="pointer-events-auto mt-5 max-w-md translate-y-10 opacity-0 text-sm leading-7 text-white/70 sm:mt-6 sm:text-base sm:leading-8"
+                  className="pointer-events-auto mt-5 max-w-md translate-y-10 opacity-0 font-[family:var(--font-display)] text-sm leading-7 text-white/70 sm:mt-6 sm:text-base sm:leading-8"
                 >
                   Cybersecurity enthusiast & developer focused on building secure, scalable and intelligent systems.
                 </p>
