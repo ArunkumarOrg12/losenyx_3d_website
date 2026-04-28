@@ -339,20 +339,27 @@ export default function Home() {
             <a
               href="#hero-scroll-container"
               onClick={() => setMobileMenuOpen(false)}
-              className="border border-white/8 bg-white/[0.03] px-4 py-3 text-[var(--color-accent)]"
+              className={`border border-white/8 bg-white/[0.03] px-4 py-3 transition hover:border-[rgba(255,58,50,0.35)] hover:text-white ${
+                activeRailId === "hero-scroll-container" ? "text-[var(--color-accent)]" : ""
+              }`}
             >
               Home
             </a>
-            {navLinks.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="border border-white/8 bg-white/[0.03] px-4 py-3 transition hover:border-[rgba(255,58,50,0.35)] hover:text-white"
-              >
-                {item.label}
-              </a>
-            ))}
+            {navLinks.map((item) => {
+              const sectionId = item.href.replace("#", "");
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`border border-white/8 bg-white/[0.03] px-4 py-3 transition hover:border-[rgba(255,58,50,0.35)] hover:text-white ${
+                    activeRailId === sectionId ? "text-[var(--color-accent)]" : ""
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
             <a
               href="#contact"
               onClick={() => setMobileMenuOpen(false)}
@@ -443,14 +450,24 @@ export default function Home() {
             <header className="pointer-events-none absolute left-0 right-0 top-0 z-50 mx-auto hidden w-full max-w-[1460px] flex-wrap items-center justify-between gap-4 px-4 py-5 md:flex md:flex-nowrap md:px-8 lg:px-1 h-[14vh]">
 
               <nav className="pointer-events-auto order-3 hidden w-full gap-8 text-xs uppercase tracking-[0.24em] text-white/70 md:flex md:w-auto">
-                <a href="#hero-scroll-container" className="text-[var(--color-accent)]">
+                <a
+                  href="#hero-scroll-container"
+                  className={`transition hover:text-white ${activeRailId === "hero-scroll-container" ? "text-[var(--color-accent)]" : ""}`}
+                >
                   Home
                 </a>
-                {navLinks.map((item) => (
-                  <a key={item.href} href={item.href} className="transition hover:text-white">
-                    {item.label}
-                  </a>
-                ))}
+                {navLinks.map((item) => {
+                  const sectionId = item.href.replace("#", "");
+                  return (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className={`transition hover:text-white ${activeRailId === sectionId ? "text-[var(--color-accent)]" : ""}`}
+                    >
+                      {item.label}
+                    </a>
+                  );
+                })}
               </nav>
               <a
                 href="#contact"
