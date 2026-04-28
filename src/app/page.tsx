@@ -440,17 +440,8 @@ export default function Home() {
           <div id="hero-pinned-content" className="sticky top-0 h-screen w-full overflow-hidden">
             <HeroScrollSequence triggerSelector="#hero-scroll-container" />
             
-            <header className="pointer-events-none absolute left-0 right-0 top-0 z-50 mx-auto hidden w-full max-w-[1460px] flex-wrap items-center justify-between gap-4 px-4 py-5 md:flex md:flex-nowrap md:px-8 lg:px-12">
-              <div className="relative h-12 w-[84px] overflow-hidden">
-                <Image
-                  src="/icon/losenyx vector white.svg"
-                  alt="Losenyx logo"
-                  width={1500}
-                  height={1500}
-                  className="absolute left-[-6px] top-[-15px] h-[76px] w-auto max-w-none opacity-95"
-                  priority
-                />
-              </div>
+            <header className="pointer-events-none absolute left-0 right-0 top-0 z-50 mx-auto hidden w-full max-w-[1460px] flex-wrap items-center justify-between gap-4 px-4 py-5 md:flex md:flex-nowrap md:px-8 lg:px-1 h-[14vh]">
+
               <nav className="pointer-events-auto order-3 hidden w-full gap-8 text-xs uppercase tracking-[0.24em] text-white/70 md:flex md:w-auto">
                 <a href="#hero-scroll-container" className="text-[var(--color-accent)]">
                   Home
