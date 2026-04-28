@@ -10,8 +10,8 @@ import { AboutScrollSequence } from "@/components/about-scroll-sequence";
 gsap.registerPlugin(ScrollTrigger);
 
 const railLinks = [
-  { id: "hero-scroll-container", number: "01", label: "Entry" },
-  { id: "about", number: "02", label: "Identity" },
+  { id: "hero-scroll-container", number: "01", label: "Home" },
+  { id: "about", number: "02", label: "About" },
   { id: "team", number: "03", label: "Team" },
   { id: "services", number: "04", label: "Services" },
   { id: "certifications", number: "05", label: "Certs" },
@@ -114,6 +114,25 @@ function LinkedInIcon() {
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-12h4v2" />
       <rect x="2" y="9" width="4" height="12" />
       <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4.25" />
+      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8">
+      <path d="M4 4l16 16" />
+      <path d="M19 4l-6.2 7.1L9 4H5l5.9 8.3L5 20h4l4.2-4.9L17 20h4l-6.1-8.6L23 4z" />
     </svg>
   );
 }
@@ -815,6 +834,20 @@ export default function Home() {
                   aria-label="LinkedIn"
                 >
                   <LinkedInIcon />
+                </a>
+                <a
+                  href="https://instagram.com"
+                  className="inline-flex h-10 w-10 items-center justify-center border border-white/12 bg-white/[0.03] text-white/70 transition hover:border-[rgba(255,58,50,0.5)] hover:text-white"
+                  aria-label="Instagram"
+                >
+                  <InstagramIcon />
+                </a>
+                <a
+                  href="https://x.com"
+                  className="inline-flex h-10 w-10 items-center justify-center border border-white/12 bg-white/[0.03] text-white/70 transition hover:border-[rgba(255,58,50,0.5)] hover:text-white"
+                  aria-label="X"
+                >
+                  <XIcon />
                 </a>
               </div>
             </div>
