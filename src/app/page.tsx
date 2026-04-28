@@ -135,8 +135,6 @@ export default function Home() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: heroContainer,
-          pin: heroPinned, // Pin the inner content div
-          pinSpacing: false, // Prevents GSAP from adding extra padding to the 350vh container
           start: "top top",
           end: "bottom bottom",
           scrub: 0.1, // Small scrub for smooth text changes
@@ -168,8 +166,6 @@ export default function Home() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: aboutContainer,
-          pin: aboutPinned,
-          pinSpacing: false,
           start: "top top",
           end: "bottom bottom",
           scrub: 0.1,
@@ -278,6 +274,77 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,57,45,0.08),transparent_35%)]" />
       </div>
 
+      <div className="fixed left-0 right-0 top-0 z-[70] border-b border-white/8 bg-[rgba(3,7,11,0.86)] backdrop-blur md:hidden">
+        <div className="flex items-center justify-between gap-4 px-4 py-4">
+          <a href="#hero-scroll-container" className="pointer-events-auto flex items-center" aria-label="Go to home section">
+            <div className="relative h-12 w-[84px] overflow-hidden">
+              <Image
+                src="/icon/losenyx vector white.svg"
+                alt="Losenyx logo"
+                width={1500}
+                height={1500}
+                className="absolute left-[-6px] top-[-15px] h-[76px] w-auto max-w-none opacity-95"
+                priority
+              />
+            </div>
+          </a>
+          <button
+            type="button"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            className="inline-flex h-11 w-11 items-center justify-center border border-[var(--color-line)] bg-black/50 text-white transition hover:border-[rgba(255,58,50,0.5)]"
+          >
+            <span className="sr-only">Toggle navigation menu</span>
+            <span className="flex flex-col gap-1.5">
+              <span
+                className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "translate-y-2 rotate-45" : ""}`}
+              />
+              <span
+                className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "opacity-0" : ""}`}
+              />
+              <span
+                className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "-translate-y-2 -rotate-45" : ""}`}
+              />
+            </span>
+          </button>
+        </div>
+
+        <div
+          id="mobile-nav"
+          className={`overflow-hidden border-t border-[var(--color-line)] bg-[rgba(3,7,11,0.96)] px-4 pb-4 transition-[max-height,opacity] duration-300 ${
+            mobileMenuOpen ? "max-h-[420px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <nav className="grid gap-2 pt-4 text-[11px] uppercase tracking-[0.22em] text-white/70">
+            <a
+              href="#hero-scroll-container"
+              onClick={() => setMobileMenuOpen(false)}
+              className="border border-white/8 bg-white/[0.03] px-4 py-3 text-[var(--color-accent)]"
+            >
+              Home
+            </a>
+            {navLinks.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="border border-white/8 bg-white/[0.03] px-4 py-3 transition hover:border-[rgba(255,58,50,0.35)] hover:text-white"
+              >
+                {item.label}
+              </a>
+            ))}
+            <a
+              href="#contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="mt-2 inline-flex min-h-11 items-center justify-center border border-[var(--color-accent)] px-4 text-[10px] tracking-[0.22em] text-white transition hover:bg-[rgba(255,58,50,0.12)]"
+            >
+              Let&apos;s Connect
+            </a>
+          </nav>
+        </div>
+      </div>
+
       <div className="fixed inset-y-0 left-0 z-30 hidden w-[148px] xl:block">
         <div className="relative flex h-full flex-col overflow-hidden border-r border-white/8 bg-[linear-gradient(180deg,rgba(4,8,13,0.985),rgba(3,7,11,0.96))] shadow-[18px_0_40px_rgba(0,0,0,0.22)]">
           <div className="border-b border-white/6 px-8 pb-7 pt-9">
@@ -351,40 +418,20 @@ export default function Home() {
 
       <main className="relative z-10 xl:ml-[148px]">
         <section id="hero-scroll-container" className="relative h-[350vh] border-b border-[var(--color-line)] bg-black">
-          <div id="hero-pinned-content" className="relative h-screen w-full overflow-hidden">
+          <div id="hero-pinned-content" className="sticky top-0 h-screen w-full overflow-hidden">
             <HeroScrollSequence triggerSelector="#hero-scroll-container" />
             
-            <header className="pointer-events-none absolute left-0 right-0 top-0 z-50 mx-auto flex w-full max-w-[1460px] flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 md:flex-nowrap md:px-8 lg:px-12">
-              <div className="pointer-events-auto min-w-0 xl:hidden">
+            <header className="pointer-events-none absolute left-0 right-0 top-0 z-50 mx-auto hidden w-full max-w-[1460px] flex-wrap items-center justify-between gap-4 px-4 py-5 md:flex md:flex-nowrap md:px-8 lg:px-12">
+              <div className="relative h-12 w-[84px] overflow-hidden">
                 <Image
-                  src="/icon/Logo whiteLosenyx.svg"
-                  alt="Losenyx"
-                  width={148}
-                  height={48}
-                  className="h-10 w-auto object-contain sm:h-11"
+                  src="/icon/losenyx vector white.svg"
+                  alt="Losenyx logo"
+                  width={1500}
+                  height={1500}
+                  className="absolute left-[-6px] top-[-15px] h-[76px] w-auto max-w-none opacity-95"
                   priority
                 />
               </div>
-              <button
-                type="button"
-                aria-expanded={mobileMenuOpen}
-                aria-controls="mobile-nav"
-                onClick={() => setMobileMenuOpen((open) => !open)}
-                className="pointer-events-auto order-2 inline-flex h-11 w-11 items-center justify-center border border-[var(--color-line)] bg-black/50 text-white transition hover:border-[rgba(255,58,50,0.5)] md:hidden"
-              >
-                <span className="sr-only">Toggle navigation menu</span>
-                <span className="flex flex-col gap-1.5">
-                  <span
-                    className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "translate-y-2 rotate-45" : ""}`}
-                  />
-                  <span
-                    className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "opacity-0" : ""}`}
-                  />
-                  <span
-                    className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "-translate-y-2 -rotate-45" : ""}`}
-                  />
-                </span>
-              </button>
               <nav className="pointer-events-auto order-3 hidden w-full gap-8 text-xs uppercase tracking-[0.24em] text-white/70 md:flex md:w-auto">
                 <a href="#hero-scroll-container" className="text-[var(--color-accent)]">
                   Home
@@ -395,39 +442,6 @@ export default function Home() {
                   </a>
                 ))}
               </nav>
-              <div
-                id="mobile-nav"
-                className={`pointer-events-auto order-4 w-full border-t border-[var(--color-line)] bg-black/80 pt-4 backdrop-blur md:hidden ${
-                  mobileMenuOpen ? "block" : "hidden"
-                }`}
-              >
-                <nav className="grid gap-2 text-[11px] uppercase tracking-[0.22em] text-white/70">
-                  <a
-                    href="#hero-scroll-container"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="border border-white/8 bg-white/[0.03] px-4 py-3 text-[var(--color-accent)]"
-                  >
-                    Home
-                  </a>
-                  {navLinks.map((item) => (
-                    <a
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="border border-white/8 bg-white/[0.03] px-4 py-3 transition hover:border-[rgba(255,58,50,0.35)] hover:text-white"
-                    >
-                      {item.label}
-                    </a>
-                  ))}
-                  <a
-                    href="#contact"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="mt-2 inline-flex min-h-11 items-center justify-center border border-[var(--color-accent)] px-4 text-[10px] tracking-[0.22em] text-white transition hover:bg-[rgba(255,58,50,0.12)]"
-                  >
-                    Let&apos;s Connect
-                  </a>
-                </nav>
-              </div>
               <a
                 href="#contact"
                 className="pointer-events-auto order-2 hidden min-h-11 items-center justify-center border border-[var(--color-accent)] bg-black/30 px-4 text-[10px] uppercase tracking-[0.22em] text-white backdrop-blur transition hover:bg-[rgba(255,58,50,0.12)] sm:px-5 sm:text-[11px] md:order-3 md:inline-flex"
@@ -436,7 +450,7 @@ export default function Home() {
               </a>
             </header>
 
-            <div className="pointer-events-none absolute inset-0 z-40 flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12">
+            <div className="pointer-events-none absolute inset-0 z-40 flex flex-col justify-center px-4 pt-20 sm:px-6 md:px-8 md:pt-0 lg:px-12">
               <div className="mx-auto w-full max-w-[1460px]">
                 <p
                   data-hero-text-1
@@ -488,7 +502,7 @@ export default function Home() {
 
         {/* ── About section: full-screen pinned scroll sequence (frames2) ─────── */}
         <section id="about" className="relative h-[350vh] border-b border-[var(--color-line)] bg-black">
-          <div id="about-pinned-content" className="relative h-screen w-full overflow-hidden">
+          <div id="about-pinned-content" className="sticky top-0 h-screen w-full overflow-hidden">
             {/* Full-screen canvas playing frames2 */}
             <AboutScrollSequence triggerSelector="#about" />
 
@@ -768,12 +782,13 @@ export default function Home() {
           <div className="flex flex-col gap-6 border-t border-[var(--color-line)] pt-6 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <Image
-                src="/icon/Logo whiteLosenyx.svg"
+                src="/icon/Logo white full 1.png"
                 alt="Losenyx"
-                width={200}
-                height={64}
-                className="h-12 w-auto object-contain"
+                  width={500}
+                  height={500}
+                className="h-18 md:h-28 w-auto object-cover"
               />
+              
               <p className="mt-3 max-w-sm text-sm leading-7 text-white/56">
                 Securing systems, tracking threats, and building resilient infrastructure.
               </p>
