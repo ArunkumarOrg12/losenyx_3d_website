@@ -10,7 +10,7 @@ const TOTAL_FRAMES = 121;
 
 const FRAME_SRCS = Array.from(
   { length: TOTAL_FRAMES },
-  (_, i) => `/api/frames2/frame_${String(i).padStart(6, "0")}.jpg`,
+  (_, i) => `/frames2/frame_${String(i).padStart(6, "0")}.jpg`,
 );
 
 export function AboutScrollSequence({

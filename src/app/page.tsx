@@ -293,7 +293,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,57,45,0.08),transparent_35%)]" />
       </div>
 
-      <div className="fixed left-0 right-0 top-0 z-[70] border-b border-white/8 bg-[rgba(3,7,11,0.86)] backdrop-blur md:hidden">
+      <div className="fixed left-0 right-0 top-0 z-[70] border-b border-white/8 bg-[rgba(3,7,11,0.86)] backdrop-blur md:hidden h-20">
         <div className="flex items-center justify-between gap-4 px-4 py-4">
           <a href="#hero-scroll-container" className="pointer-events-auto flex items-center" aria-label="Go to home section">
             <div className="relative h-12 w-[84px] overflow-hidden">
@@ -302,7 +302,7 @@ export default function Home() {
                 alt="Losenyx logo"
                 width={1500}
                 height={1500}
-                className="absolute left-[-6px] top-[-15px] h-[76px] w-auto max-w-none opacity-95"
+                className="absolute left-[-6px] top-[-15px] h-[68px] w-auto max-w-none opacity-95"
                 priority
               />
             </div>

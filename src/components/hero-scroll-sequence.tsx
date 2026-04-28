@@ -10,7 +10,7 @@ const TOTAL_FRAMES = 121;
 
 const FRAME_SRCS = Array.from(
   { length: TOTAL_FRAMES },
-  (_, i) => `/api/video-frames/frame_${String(i).padStart(6, "0")}.jpg`,
+  (_, i) => `/video-frames/frame_${String(i).padStart(6, "0")}.jpg`,
 );
 
 export function HeroScrollSequence({

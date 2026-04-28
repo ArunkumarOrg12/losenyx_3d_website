@@ -1,0 +1,20 @@
+[build]
+  command   = "npm run build"
+  publish   = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Cache static frame images at the edge for 1 year
+[[headers]]
+  for = "/frames2/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/video-frames/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
