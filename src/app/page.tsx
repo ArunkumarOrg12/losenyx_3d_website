@@ -10,7 +10,7 @@ import { AboutScrollSequence } from "@/components/about-scroll-sequence";
 gsap.registerPlugin(ScrollTrigger);
 
 const railLinks = [
-  { id: "hero", number: "01", label: "Entry" },
+  { id: "hero-scroll-container", number: "01", label: "Entry" },
   { id: "about", number: "02", label: "Identity" },
   { id: "team", number: "03", label: "Team" },
   { id: "services", number: "04", label: "Services" },
@@ -121,6 +121,7 @@ function LinkedInIcon() {
 export default function Home() {
   const pageRef = useRef<HTMLDivElement | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeRailId, setActiveRailId] = useState(railLinks[0].id);
 
   // ── Hero text scroll animation (GSAP) ───────────────────
   useEffect(() => {
@@ -209,18 +210,6 @@ export default function Home() {
         );
       });
 
-      gsap.to("[data-scroll-line]", {
-        scaleY: 1,
-        transformOrigin: "top top",
-        ease: "none",
-        scrollTrigger: {
-          trigger: scope,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: true,
-        },
-      });
-
       gsap.to("[data-scroll-dot]", {
         y: 42,
         repeat: -1,
@@ -250,6 +239,33 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const updateActiveRail = () => {
+      const viewportAnchor = window.scrollY + window.innerHeight * 0.42;
+      let nextActiveId = railLinks[0].id;
+
+      for (const link of railLinks) {
+        const section = document.getElementById(link.id);
+        if (!section) continue;
+
+        if (section.offsetTop <= viewportAnchor) {
+          nextActiveId = link.id;
+        }
+      }
+
+      setActiveRailId((current) => (current === nextActiveId ? current : nextActiveId));
+    };
+
+    updateActiveRail();
+    window.addEventListener("scroll", updateActiveRail, { passive: true });
+    window.addEventListener("resize", updateActiveRail);
+
+    return () => {
+      window.removeEventListener("scroll", updateActiveRail);
+      window.removeEventListener("resize", updateActiveRail);
+    };
+  }, []);
+
   return (
     <div
       ref={pageRef}
@@ -261,8 +277,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,57,45,0.08),transparent_35%)]" />
       </div>
 
-      <div className="pointer-events-none fixed inset-y-0 left-0 z-30 hidden w-[114px] border-r border-[var(--color-line)] xl:block">
-        <div className="flex h-full flex-col px-9 pt-8">
+      <div className="fixed inset-y-0 left-0 z-30 hidden w-[114px] xl:block">
+        <div className="relative flex h-full flex-col overflow-hidden border-r border-white/6 bg-[linear-gradient(180deg,rgba(5,9,14,0.94),rgba(3,7,11,0.9))] px-9 pt-8 shadow-[12px_0_30px_rgba(0,0,0,0.18)] after:absolute after:right-0 after:top-0 after:h-full after:w-px after:bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.02))]">
           <div className="mb-12 flex justify-center">
             <Image
               src="/icon/Logo whiteLosenyx.svg"
@@ -273,22 +289,55 @@ export default function Home() {
               priority
             />
           </div>
-          <div className="relative flex-1">
-            <div className="absolute left-[10px] top-4 bottom-12 w-px bg-white/10" />
-            <div
-              data-scroll-line
-              className="absolute left-[10px] top-4 bottom-12 w-px origin-top scale-y-0 bg-[var(--color-accent)]"
-            />
+          <div className="pointer-events-auto relative flex-1">
             <div className="space-y-9">
-              {railLinks.map((item) => (
-                <a key={item.id} href={`#${item.id}`} className="relative block pl-5">
-                  <div className="absolute left-[6px] top-[15px] h-2 w-2 rounded-full border border-white/25 bg-[var(--color-bg)]" />
-                  <p className="font-[family:var(--font-display)] text-[2.1rem] leading-none text-[var(--color-accent)]">
+              {railLinks.map((item, index) => {
+                const isActive = item.id === activeRailId;
+                const isComplete = railLinks.findIndex((link) => link.id === activeRailId) > index;
+
+                return (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    aria-current={isActive ? "true" : undefined}
+                    className="group relative block pl-5"
+                  >
+                    {index < railLinks.length - 1 ? (
+                      <>
+                        <div className="absolute left-[10px] top-4 bottom-[-2.35rem] w-px bg-white/10" />
+                        <div
+                          className={`absolute left-[10px] top-4 bottom-[-2.35rem] w-px transition-colors duration-300 ${
+                            isActive || isComplete ? "bg-[var(--color-accent)]" : "bg-transparent"
+                          }`}
+                        />
+                      </>
+                    ) : null}
+                    <div
+                      className={`absolute left-[6px] top-[15px] h-2 w-2 rounded-full border bg-[var(--color-bg)] transition-all duration-300 ${
+                        isActive
+                          ? "border-[var(--color-accent)] shadow-[0_0_12px_rgba(255,58,50,0.55)]"
+                          : isComplete
+                            ? "border-[rgba(255,58,50,0.5)]"
+                            : "border-white/25"
+                      }`}
+                    />
+                    <p
+                      className={`font-[family:var(--font-display)] text-[2.1rem] leading-none transition-colors duration-300 ${
+                        isActive ? "text-[var(--color-accent)]" : "text-white/42 group-hover:text-white/72"
+                      }`}
+                    >
                     {item.number}
-                  </p>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-white/72">{item.label}</p>
-                </a>
-              ))}
+                    </p>
+                    <p
+                      className={`mt-1 text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${
+                        isActive ? "text-white" : "text-white/52 group-hover:text-white/78"
+                      }`}
+                    >
+                      {item.label}
+                    </p>
+                  </a>
+                );
+              })}
             </div>
           </div>
         </div>
