@@ -122,6 +122,7 @@ export default function Home() {
   const pageRef = useRef<HTMLDivElement | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeRailId, setActiveRailId] = useState(railLinks[0].id);
+  const activeRailIndex = railLinks.findIndex((link) => link.id === activeRailId);
 
   // ── Hero text scroll animation (GSAP) ───────────────────
   useEffect(() => {
@@ -277,60 +278,64 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,57,45,0.08),transparent_35%)]" />
       </div>
 
-      <div className="fixed inset-y-0 left-0 z-30 hidden w-[114px] xl:block">
-        <div className="relative flex h-full flex-col overflow-hidden border-r border-white/6 bg-[linear-gradient(180deg,rgba(5,9,14,0.94),rgba(3,7,11,0.9))] px-9 pt-8 shadow-[12px_0_30px_rgba(0,0,0,0.18)] after:absolute after:right-0 after:top-0 after:h-full after:w-px after:bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.02))]">
-          <div className="mb-12 flex justify-center">
-            <Image
-              src="/icon/Logo whiteLosenyx.svg"
-              alt="Losenyx logo"
-              width={64}
-              height={64}
-              className="h-14 w-auto object-contain opacity-95"
-              priority
-            />
+      <div className="fixed inset-y-0 left-0 z-30 hidden w-[148px] xl:block">
+        <div className="relative flex h-full flex-col overflow-hidden border-r border-white/8 bg-[linear-gradient(180deg,rgba(4,8,13,0.985),rgba(3,7,11,0.96))] shadow-[18px_0_40px_rgba(0,0,0,0.22)]">
+          <div className="border-b border-white/6 px-8 pb-7 pt-9">
+            <div className="flex justify-start">
+              <div className="relative h-12 w-[84px] overflow-hidden">
+                <Image
+                  src="/icon/losenyx vector white.svg"
+                  alt="Losenyx logo"
+                  width={1500}
+                  height={1500}
+                  className="absolute left-[-6px] top-[-15px] h-[76px] w-auto max-w-none opacity-95"
+                  priority
+                />
+              </div>
+            </div>
           </div>
-          <div className="pointer-events-auto relative flex-1">
-            <div className="space-y-9">
+          <div className="pointer-events-auto relative flex-1 px-8 py-9">
+            <div className="space-y-8">
               {railLinks.map((item, index) => {
                 const isActive = item.id === activeRailId;
-                const isComplete = railLinks.findIndex((link) => link.id === activeRailId) > index;
+                const isComplete = activeRailIndex > index;
 
                 return (
                   <a
                     key={item.id}
                     href={`#${item.id}`}
                     aria-current={isActive ? "true" : undefined}
-                    className="group relative block pl-5"
+                    className="group relative block min-h-[74px] pl-9"
                   >
                     {index < railLinks.length - 1 ? (
                       <>
-                        <div className="absolute left-[10px] top-4 bottom-[-2.35rem] w-px bg-white/10" />
+                        <div className="absolute left-[11px] top-[22px] h-[calc(100%+1.9rem)] w-px bg-white/10" />
                         <div
-                          className={`absolute left-[10px] top-4 bottom-[-2.35rem] w-px transition-colors duration-300 ${
+                          className={`absolute left-[11px] top-[22px] h-[calc(100%+1.9rem)] w-px transition-colors duration-300 ${
                             isActive || isComplete ? "bg-[var(--color-accent)]" : "bg-transparent"
                           }`}
                         />
                       </>
                     ) : null}
                     <div
-                      className={`absolute left-[6px] top-[15px] h-2 w-2 rounded-full border bg-[var(--color-bg)] transition-all duration-300 ${
+                      className={`absolute left-[6px] top-[12px] h-[11px] w-[11px] rounded-full border bg-[var(--color-bg)] transition-all duration-300 ${
                         isActive
-                          ? "border-[var(--color-accent)] shadow-[0_0_12px_rgba(255,58,50,0.55)]"
+                          ? "border-[var(--color-accent)] shadow-[0_0_0_3px_rgba(255,58,50,0.08),0_0_14px_rgba(255,58,50,0.45)]"
                           : isComplete
-                            ? "border-[rgba(255,58,50,0.5)]"
+                            ? "border-[rgba(255,58,50,0.4)]"
                             : "border-white/25"
                       }`}
                     />
                     <p
-                      className={`font-[family:var(--font-display)] text-[2.1rem] leading-none transition-colors duration-300 ${
-                        isActive ? "text-[var(--color-accent)]" : "text-white/42 group-hover:text-white/72"
+                      className={`font-[family:var(--font-display)] text-[2.15rem] leading-none tracking-[0.04em] transition-colors duration-300 ${
+                        isActive ? "text-[var(--color-accent)]" : "text-white/38 group-hover:text-white/70"
                       }`}
                     >
-                    {item.number}
+                      {item.number}
                     </p>
                     <p
-                      className={`mt-1 text-[11px] uppercase tracking-[0.22em] transition-colors duration-300 ${
-                        isActive ? "text-white" : "text-white/52 group-hover:text-white/78"
+                      className={`mt-2 text-[10px] uppercase tracking-[0.34em] transition-colors duration-300 ${
+                        isActive ? "text-white/90" : "text-white/46 group-hover:text-white/72"
                       }`}
                     >
                       {item.label}
@@ -340,10 +345,11 @@ export default function Home() {
               })}
             </div>
           </div>
+
         </div>
       </div>
 
-      <main className="relative z-10 xl:ml-[114px]">
+      <main className="relative z-10 xl:ml-[148px]">
         <section id="hero-scroll-container" className="relative h-[350vh] border-b border-[var(--color-line)] bg-black">
           <div id="hero-pinned-content" className="relative h-screen w-full overflow-hidden">
             <HeroScrollSequence triggerSelector="#hero-scroll-container" />
