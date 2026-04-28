@@ -121,26 +121,49 @@ export default function Home() {
   const pageRef = useRef<HTMLDivElement | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // ── Hero text scroll animation (GSAP) ───────────────────
   useEffect(() => {
-    const scope = pageRef.current;
-
-    if (!scope) {
-      return;
-    }
+    const heroContainer = document.getElementById("hero-scroll-container");
+    const heroPinned = document.getElementById("hero-pinned-content");
+    if (!heroContainer || !heroPinned) return;
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        "[data-hero-copy]",
-        { y: 42, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.95, stagger: 0.1, ease: "power3.out" },
-      );
+      // Create a timeline that spans the 350vh container
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: heroContainer,
+          pin: heroPinned, // Pin the inner content div
+          pinSpacing: false, // Prevents GSAP from adding extra padding to the 350vh container
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.1, // Small scrub for smooth text changes
+        },
+      });
 
-      gsap.fromTo(
-        "[data-hero-visual]",
-        { scale: 0.92, opacity: 0, rotate: -5 },
-        { scale: 1, opacity: 1, rotate: 0, duration: 1.2, ease: "power3.out", delay: 0.12 },
-      );
+      // text-1: label
+      // text-2: "SECURING SYSTEMS."
+      // text-3: "TRACKING THREATS."
+      // text-4: last line + paragraph
+      // text-5: CTA button
 
+      // Initial state is already translated and opacity 0 in CSS.
+      // At 0 progress, text-1 and text-2 should be visible.
+      tl.to("[data-hero-text-1], [data-hero-text-2]", { opacity: 1, y: 0, duration: 0.1, stagger: 0.05 }, 0)
+        .to("[data-hero-text-1], [data-hero-text-2]", { opacity: 0, y: -16, duration: 0.3 }, 0.4)
+        .to("[data-hero-text-3]", { opacity: 1, y: 0, duration: 0.2 }, 0.4)
+        .to("[data-hero-text-3]", { opacity: 0, y: -16, duration: 0.3 }, 0.7)
+        .to("[data-hero-text-4], [data-hero-text-5]", { opacity: 1, y: 0, duration: 0.2, stagger: 0.1 }, 0.7);
+    });
+
+    return () => ctx.revert();
+  }, []);
+
+  // ── Reveal animations for sections below hero ────────────────────────────────
+  useEffect(() => {
+    const scope = pageRef.current;
+    if (!scope) return;
+
+    const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element, index) => {
         gsap.fromTo(
           element,
@@ -203,7 +226,7 @@ export default function Home() {
   return (
     <div
       ref={pageRef}
-      className="relative min-h-screen overflow-x-hidden bg-[var(--color-bg)] text-[var(--color-text)]"
+      className="relative min-h-screen overflow-x-clip bg-[var(--color-bg)] text-[var(--color-text)]"
     >
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,58,50,0.16),transparent_22%),linear-gradient(180deg,#05080d_0%,#05070b_52%,#040609_100%)]" />
@@ -245,153 +268,137 @@ export default function Home() {
       </div>
 
       <main className="relative z-10 xl:ml-[114px]">
-        <section id="hero" className="min-h-screen border-b border-[var(--color-line)]">
-          <header className="mx-auto flex w-full max-w-[1460px] flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 md:flex-nowrap md:px-8 lg:px-12">
-            <div className="min-w-0 xl:hidden">
-              <Image
-                src="/icon/Logo whiteLosenyx.svg"
-                alt="Losenyx"
-                width={148}
-                height={48}
-                className="h-10 w-auto object-contain sm:h-11"
-                priority
-              />
-            </div>
-            <button
-              type="button"
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-nav"
-              onClick={() => setMobileMenuOpen((open) => !open)}
-              className="order-2 inline-flex h-11 w-11 items-center justify-center border border-[var(--color-line)] text-white transition hover:border-[rgba(255,58,50,0.5)] md:hidden"
-            >
-              <span className="sr-only">Toggle navigation menu</span>
-              <span className="flex flex-col gap-1.5">
-                <span
-                  className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "translate-y-2 rotate-45" : ""}`}
+        <section id="hero-scroll-container" className="relative h-[350vh] border-b border-[var(--color-line)] bg-black">
+          <div id="hero-pinned-content" className="relative h-screen w-full overflow-hidden">
+            <HeroScrollSequence triggerSelector="#hero-scroll-container" />
+            
+            <header className="pointer-events-none absolute left-0 right-0 top-0 z-50 mx-auto flex w-full max-w-[1460px] flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 md:flex-nowrap md:px-8 lg:px-12">
+              <div className="pointer-events-auto min-w-0 xl:hidden">
+                <Image
+                  src="/icon/Logo whiteLosenyx.svg"
+                  alt="Losenyx"
+                  width={148}
+                  height={48}
+                  className="h-10 w-auto object-contain sm:h-11"
+                  priority
                 />
-                <span
-                  className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "opacity-0" : ""}`}
-                />
-                <span
-                  className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "-translate-y-2 -rotate-45" : ""}`}
-                />
-              </span>
-            </button>
-            <nav className="order-3 hidden w-full gap-8 text-xs uppercase tracking-[0.24em] text-white/70 md:flex md:w-auto">
-              <a href="#hero" className="text-[var(--color-accent)]">
-                Home
-              </a>
-              {navLinks.map((item) => (
-                <a key={item.href} href={item.href} className="transition hover:text-white">
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-            <div
-              id="mobile-nav"
-              className={`order-4 w-full border-t border-[var(--color-line)] pt-4 md:hidden ${
-                mobileMenuOpen ? "block" : "hidden"
-              }`}
-            >
-              <nav className="grid gap-2 text-[11px] uppercase tracking-[0.22em] text-white/70">
-                <a
-                  href="#hero"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="border border-white/8 bg-white/[0.03] px-4 py-3 text-[var(--color-accent)]"
-                >
+              </div>
+              <button
+                type="button"
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-nav"
+                onClick={() => setMobileMenuOpen((open) => !open)}
+                className="pointer-events-auto order-2 inline-flex h-11 w-11 items-center justify-center border border-[var(--color-line)] bg-black/50 text-white transition hover:border-[rgba(255,58,50,0.5)] md:hidden"
+              >
+                <span className="sr-only">Toggle navigation menu</span>
+                <span className="flex flex-col gap-1.5">
+                  <span
+                    className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "translate-y-2 rotate-45" : ""}`}
+                  />
+                  <span
+                    className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "opacity-0" : ""}`}
+                  />
+                  <span
+                    className={`block h-px w-5 bg-current transition ${mobileMenuOpen ? "-translate-y-2 -rotate-45" : ""}`}
+                  />
+                </span>
+              </button>
+              <nav className="pointer-events-auto order-3 hidden w-full gap-8 text-xs uppercase tracking-[0.24em] text-white/70 md:flex md:w-auto">
+                <a href="#hero-scroll-container" className="text-[var(--color-accent)]">
                   Home
                 </a>
                 {navLinks.map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="border border-white/8 bg-white/[0.03] px-4 py-3 transition hover:border-[rgba(255,58,50,0.35)] hover:text-white"
-                  >
+                  <a key={item.href} href={item.href} className="transition hover:text-white">
                     {item.label}
                   </a>
                 ))}
-                <a
-                  href="#contact"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="mt-2 inline-flex min-h-11 items-center justify-center border border-[var(--color-accent)] px-4 text-[10px] tracking-[0.22em] text-white transition hover:bg-[rgba(255,58,50,0.12)]"
-                >
-                  Let&apos;s Connect
-                </a>
               </nav>
-            </div>
-            <a
-              href="#contact"
-              className="order-2 hidden min-h-11 items-center justify-center border border-[var(--color-accent)] px-4 text-[10px] uppercase tracking-[0.22em] text-white transition hover:bg-[rgba(255,58,50,0.12)] sm:px-5 sm:text-[11px] md:order-3 md:inline-flex"
-            >
-              Let&apos;s Connect
-            </a>
-          </header>
-
-          <div className="mx-auto grid w-full max-w-[1460px] gap-8 px-4 pb-10 pt-3 sm:px-6 md:gap-10 md:px-8 lg:grid-cols-[0.78fr_1.22fr] lg:px-12 lg:pb-0">
-            <div className="flex flex-col justify-center py-6 sm:py-8 lg:py-16">
-              <p
-                data-hero-copy
-                className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)] sm:text-xs sm:tracking-[0.28em]"
+              <div
+                id="mobile-nav"
+                className={`pointer-events-auto order-4 w-full border-t border-[var(--color-line)] bg-black/80 pt-4 backdrop-blur md:hidden ${
+                  mobileMenuOpen ? "block" : "hidden"
+                }`}
               >
-                Securing the digital future
-              </p>
-              <h1
-                data-hero-copy
-                className="mt-5 max-w-[13ch] font-[family:var(--font-display)] text-[clamp(2.35rem,10vw,6.4rem)] leading-[0.92] tracking-[0.02em] text-white sm:mt-6"
+                <nav className="grid gap-2 text-[11px] uppercase tracking-[0.22em] text-white/70">
+                  <a
+                    href="#hero-scroll-container"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="border border-white/8 bg-white/[0.03] px-4 py-3 text-[var(--color-accent)]"
+                  >
+                    Home
+                  </a>
+                  {navLinks.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="border border-white/8 bg-white/[0.03] px-4 py-3 transition hover:border-[rgba(255,58,50,0.35)] hover:text-white"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                  <a
+                    href="#contact"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="mt-2 inline-flex min-h-11 items-center justify-center border border-[var(--color-accent)] px-4 text-[10px] tracking-[0.22em] text-white transition hover:bg-[rgba(255,58,50,0.12)]"
+                  >
+                    Let&apos;s Connect
+                  </a>
+                </nav>
+              </div>
+              <a
+                href="#contact"
+                className="pointer-events-auto order-2 hidden min-h-11 items-center justify-center border border-[var(--color-accent)] bg-black/30 px-4 text-[10px] uppercase tracking-[0.22em] text-white backdrop-blur transition hover:bg-[rgba(255,58,50,0.12)] sm:px-5 sm:text-[11px] md:order-3 md:inline-flex"
               >
-                Securing Systems. Tracking <span className="text-[var(--color-accent)]">Threats.</span>{" "}
-                Building Resilient Infrastructure.
-              </h1>
-              <p data-hero-copy className="mt-5 max-w-md text-sm leading-7 text-white/70 sm:mt-6 sm:text-base sm:leading-8">
-                Cybersecurity specialist and developer focused on building secure, scalable, and
-                intelligent systems for real-world operations.
-              </p>
+                Let&apos;s Connect
+              </a>
+            </header>
 
-              <div data-hero-copy className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:gap-4">
-                <a
-                  href="#services"
-                  className="inline-flex min-h-12 w-full items-center justify-center bg-[linear-gradient(135deg,#ff5f4f,#b81510)] px-6 text-[11px] uppercase tracking-[0.24em] text-white shadow-[0_0_24px_rgba(255,58,50,0.28)] transition hover:scale-[1.02] sm:w-auto"
+            <div className="pointer-events-none absolute inset-0 z-40 flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12">
+              <div className="mx-auto w-full max-w-[1460px]">
+                <p
+                  data-hero-text-1
+                  className="pointer-events-auto translate-y-10 opacity-0 text-[10px] uppercase tracking-[0.24em] text-[var(--color-accent)] sm:text-xs sm:tracking-[0.28em]"
                 >
-                  Explore Work
-                </a>
-                <a
-                  href="#contact"
-                  className="inline-flex min-h-12 w-full items-center justify-center border border-white/16 bg-white/[0.03] px-6 text-[11px] uppercase tracking-[0.24em] text-white transition hover:border-white/30 hover:bg-white/[0.06] sm:w-auto"
+                  Securing the digital future
+                </p>
+                <h1 className="pointer-events-auto mt-5 max-w-[20ch] font-[family:var(--font-display)] text-[clamp(2.35rem,8vw,5.5rem)] leading-[0.92] tracking-[0.02em] text-white sm:mt-6">
+                  <div data-hero-text-2 className="translate-y-10 opacity-0">SECURING SYSTEMS.</div>
+                  <div data-hero-text-3 className="translate-y-10 opacity-0">
+                    TRACKING <span className="text-[var(--color-accent)]">THREATS.</span>
+                  </div>
+                  <div data-hero-text-4 className="translate-y-10 opacity-0">BUILDING RESILIENT INFRASTRUCTURE.</div>
+                </h1>
+                <p
+                  data-hero-text-4
+                  className="pointer-events-auto mt-5 max-w-md translate-y-10 opacity-0 text-sm leading-7 text-white/70 sm:mt-6 sm:text-base sm:leading-8"
                 >
-                  Contact
-                </a>
-              </div>
-            </div>
+                  Cybersecurity enthusiast & developer focused on building secure, scalable and intelligent systems.
+                </p>
 
-            <div data-hero-visual className="relative flex min-h-[320px] items-center justify-center overflow-hidden border border-[rgba(115,226,255,0.2)] bg-[rgba(4,8,14,0.82)] shadow-[0_0_50px_rgba(49,176,255,0.08)] sm:min-h-[420px] lg:min-h-[520px]">
-              <HeroScrollSequence />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_22%,rgba(1,6,12,0.36)_64%,rgba(1,3,7,0.82)_100%)]" />
-              <div className="absolute bottom-4 left-4 right-4 max-w-sm border border-cyan-300/18 bg-slate-950/44 px-4 py-4 backdrop-blur sm:bottom-7 sm:left-7 sm:right-auto sm:px-5">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-cyan-300 sm:tracking-[0.3em]">
-                  Futuristic Interface
-                </p>
-                <p className="mt-3 font-[family:var(--font-display)] text-2xl text-white sm:text-3xl">
-                  Scroll-controlled system feed
-                </p>
-                <p className="mt-2 text-sm leading-6 text-white/60">
-                  Sequenced video frames, HUD overlays, and cool-spectrum scan lines tuned for a futuristic hero.
-                </p>
-              </div>
-              <div className="absolute right-4 top-4 border border-cyan-300/18 bg-slate-950/44 px-3 py-2 text-[9px] uppercase tracking-[0.22em] text-cyan-100/82 backdrop-blur sm:right-7 sm:top-7 sm:px-4 sm:py-3 sm:text-[10px] sm:tracking-[0.24em]">
-                Sequence online
-              </div>
-            </div>
-          </div>
-
-          <div className="mx-auto flex w-full max-w-[1460px] items-end justify-between px-4 pb-7 sm:px-6 md:px-8 lg:px-12">
-            <div className="hidden items-center gap-3 text-[10px] uppercase tracking-[0.26em] text-white/42 lg:flex">
-              <span>Scroll</span>
-              <div className="relative h-14 w-px bg-white/12">
                 <div
-                  data-scroll-dot
-                  className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full bg-[var(--color-accent)] shadow-[0_0_14px_rgba(255,58,50,0.7)]"
-                />
+                  data-hero-text-5
+                  className="pointer-events-auto mt-8 flex translate-y-10 flex-col gap-3 opacity-0 sm:mt-10 sm:flex-row sm:flex-wrap sm:gap-4"
+                >
+                  <a
+                    href="#about"
+                    className="inline-flex min-h-12 w-full items-center justify-center bg-[linear-gradient(135deg,#ff5f4f,#b81510)] px-6 text-[11px] uppercase tracking-[0.24em] text-white shadow-[0_0_24px_rgba(255,58,50,0.28)] transition hover:scale-[1.02] sm:w-auto"
+                  >
+                    Explore Journey
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="pointer-events-none absolute bottom-7 left-0 right-0 z-40 mx-auto flex w-full max-w-[1460px] items-end justify-between px-4 sm:px-6 md:px-8 lg:px-12">
+              <div className="pointer-events-auto hidden items-center gap-3 text-[10px] uppercase tracking-[0.26em] text-white/42 lg:flex">
+                <span>Scroll</span>
+                <div className="relative h-14 w-px bg-white/12">
+                  <div
+                    data-scroll-dot
+                    className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full bg-[var(--color-accent)] shadow-[0_0_14px_rgba(255,58,50,0.7)]"
+                  />
+                </div>
               </div>
             </div>
           </div>

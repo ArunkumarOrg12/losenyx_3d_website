@@ -6,164 +6,150 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FRAME_COUNT = 121;
+const TOTAL_FRAMES = 121;
 
-const framePaths = Array.from({ length: FRAME_COUNT }, (_, index) => {
-  const frame = index.toString().padStart(6, "0");
-  return `/api/video-frames/frame_${frame}.jpg`;
-});
+const FRAME_SRCS = Array.from(
+  { length: TOTAL_FRAMES },
+  (_, i) => `/api/video-frames/frame_${String(i).padStart(6, "0")}.jpg`,
+);
 
-export function HeroScrollSequence() {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
+export function HeroScrollSequence({
+  triggerSelector,
+}: {
+  triggerSelector?: string;
+}) {
+  const wrapRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    const section = sectionRef.current;
+    const wrap = wrapRef.current;
     const canvas = canvasRef.current;
+    if (!wrap || !canvas) return;
 
-    if (!section || !canvas) {
-      return;
-    }
-
-    const context = canvas.getContext("2d", { alpha: true });
-
-    if (!context) {
-      return;
-    }
+    const ctx2d = canvas.getContext("2d");
+    if (!ctx2d) return;
 
     const frameState = { index: 0 };
-    const images = framePaths.map((src) => {
-      const image = new Image();
-      image.decoding = "async";
-      image.src = src;
-      return image;
-    });
+    const imgs: HTMLImageElement[] = [];
 
-    let activeFrame = 0;
+    // ── size canvas to its wrapper ─────────────────────────────────────────────
+    const syncSize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const W = wrap.clientWidth;
+      const H = wrap.clientHeight;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      canvas.style.width = `${W}px`;
+      canvas.style.height = `${H}px`;
+      paint(frameState.index);
+    };
 
-    const drawFrame = (index: number) => {
-      const image = images[index];
+    // ── draw one frame cover-fitted ────────────────────────────────────────────
+    const paint = (idx: number) => {
+      const roundedIdx = Math.round(idx);
+      const img = imgs[roundedIdx];
+      if (!img || !img.complete || img.naturalWidth === 0) return;
 
-      if (!image || !image.complete || !image.naturalWidth || !image.naturalHeight) {
-        return;
-      }
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const W = canvas.width / dpr;
+      const H = canvas.height / dpr;
 
-      const rect = section.getBoundingClientRect();
-      const width = Math.max(Math.floor(rect.width), 1);
-      const height = Math.max(Math.floor(rect.height), 1);
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx2d.clearRect(0, 0, W, H);
 
-      if (canvas.width !== Math.floor(width * ratio) || canvas.height !== Math.floor(height * ratio)) {
-        canvas.width = Math.floor(width * ratio);
-        canvas.height = Math.floor(height * ratio);
-        canvas.style.width = `${width}px`;
-        canvas.style.height = `${height}px`;
-      }
-
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.scale(ratio, ratio);
-
-      const imageRatio = image.naturalWidth / image.naturalHeight;
-      const canvasRatio = width / height;
-
-      let drawWidth = width;
-      let drawHeight = height;
-      let offsetX = 0;
-      let offsetY = 0;
-
-      if (imageRatio > canvasRatio) {
-        drawHeight = height;
-        drawWidth = height * imageRatio;
-        offsetX = (width - drawWidth) / 2;
+      const ir = img.naturalWidth / img.naturalHeight;
+      const cr = W / H;
+      let sw = W, sh = H, sx = 0, sy = 0;
+      if (ir > cr) {
+        sw = H * ir;
+        sx = (W - sw) / 2;
       } else {
-        drawWidth = width;
-        drawHeight = width / imageRatio;
-        offsetY = (height - drawHeight) / 2;
+        sh = W / ir;
+        sy = (H - sh) / 2;
       }
 
-      context.filter = "saturate(1.08) contrast(1.06) brightness(0.7)";
-      context.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
-      context.filter = "none";
-
-      activeFrame = index;
+      ctx2d.filter = "brightness(0.68) contrast(1.06) saturate(1.1)";
+      ctx2d.drawImage(img, sx, sy, sw, sh);
+      ctx2d.filter = "none";
     };
 
-    const primeFrame = images[0];
-    primeFrame.onload = () => drawFrame(0);
-
-    images.forEach((image, index) => {
-      if (index === 0) {
-        return;
-      }
-
-      image.onload = () => {
-        if (index === activeFrame) {
-          drawFrame(index);
-        }
+    // ── preload all frames ─────────────────────────────────────────────────────
+    FRAME_SRCS.forEach((src, i) => {
+      const img = new Image();
+      img.onload = () => {
+        // re-draw if this frame is currently displayed
+        if (i === Math.round(frameState.index)) paint(i);
       };
+      img.src = src;
+      imgs.push(img);
     });
 
-    const onResize = () => {
-      drawFrame(activeFrame);
-      ScrollTrigger.refresh();
-    };
+    // first paint — if frame 0 is already cached this fires synchronously
+    syncSize(); // also calls paint(0) internally
+    if (!imgs[0].complete) {
+      imgs[0].addEventListener("load", () => paint(0), { once: true });
+    }
 
+    // ── resize observer (more accurate than window resize) ────────────────────
+    const ro = new ResizeObserver(() => syncSize());
+    ro.observe(wrap);
+    window.addEventListener("resize", syncSize, { passive: true });
+
+    // ── scroll → frame (GSAP) ──────────────────────────────────────────────────
+    const triggerEl = triggerSelector ? document.querySelector(triggerSelector) : wrap;
+    
     const tween = gsap.to(frameState, {
-      index: FRAME_COUNT - 1,
+      index: TOTAL_FRAMES - 1,
       ease: "none",
       snap: "index",
-      onUpdate: () => drawFrame(frameState.index),
+      onUpdate: () => paint(frameState.index),
       scrollTrigger: {
-        trigger: section,
+        trigger: triggerEl || wrap,
         start: "top top",
-        end: "bottom+=65% top",
-        scrub: 0.32,
+        end: "bottom bottom",
+        scrub: 0.1, // Matches the text timeline scrub for perfect sync and smoothness
       },
     });
-
-    const hudTween = gsap.to("[data-hero-hud]", {
-      yPercent: -10,
-      opacity: 1,
-      ease: "none",
-      scrollTrigger: {
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: true,
-      },
-    });
-
-    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener("resize", onResize);
+      ro.disconnect();
+      window.removeEventListener("resize", syncSize);
       tween.scrollTrigger?.kill();
       tween.kill();
-      hudTween.scrollTrigger?.kill();
-      hudTween.kill();
     };
-  }, []);
+  }, [triggerSelector]);
 
   return (
-    <div
-      ref={sectionRef}
-      className="absolute inset-0 overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(81,185,255,0.16),transparent_28%),linear-gradient(180deg,rgba(3,10,18,0.08),rgba(1,4,9,0.7))]"
-    >
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,10,18,0.08),rgba(1,4,9,0.82))]" />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(115,226,255,0.1)_1px,transparent_1px),linear-gradient(180deg,rgba(115,226,255,0.06)_1px,transparent_1px)] bg-[size:72px_72px] opacity-30" />
-      <div className="absolute inset-0 bg-[repeating-linear-gradient(180deg,rgba(255,255,255,0.06)_0,rgba(255,255,255,0.06)_1px,transparent_1px,transparent_4px)] opacity-[0.08]" />
+    /* wrapper fills whatever positioned parent contains it */
+    <div ref={wrapRef} className="absolute inset-0 overflow-hidden">
+      {/* canvas — sized by JS, not CSS */}
+      <canvas ref={canvasRef} aria-hidden className="block" />
 
+      {/* dark radial vignette */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_28%,rgba(0,0,0,0.62)_100%)]" />
+
+      {/* subtle cyber grid */}
       <div
-        data-hero-hud
-        className="absolute left-4 top-4 max-w-[12rem] border border-cyan-300/20 bg-slate-950/45 px-3 py-3 text-[9px] uppercase tracking-[0.24em] text-cyan-100/72 opacity-90 backdrop-blur sm:left-7 sm:top-7 sm:max-w-[14rem] sm:px-4 sm:py-4 sm:text-[10px]"
-      >
-        <p className="text-cyan-300">Visual feed</p>
-        <p className="mt-2 leading-5 text-white/62">
-          Scroll-linked frame sequence with surveillance-grid grading and signal bloom.
-        </p>
-      </div>
+        className="pointer-events-none absolute inset-0 opacity-[0.18]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(115,226,255,0.07) 1px,transparent 1px)," +
+            "linear-gradient(90deg,rgba(115,226,255,0.05) 1px,transparent 1px)",
+          backgroundSize: "88px 88px",
+        }}
+      />
+
+      {/* fine CRT scan lines */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(180deg,transparent 0px,transparent 3px,rgba(0,0,0,0.22) 3px,rgba(0,0,0,0.22) 4px)",
+        }}
+      />
+
+      {/* bottom fade into next section */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/60 to-transparent" />
     </div>
   );
 }
